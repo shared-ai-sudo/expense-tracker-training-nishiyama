@@ -41,6 +41,9 @@
   const monthlyTotalLabel = document.getElementById("monthly-total");
   const tableBody = document.getElementById("expense-table-body");
   const categorySummaryList = document.getElementById("category-summary");
+  const cloudStatusLabel = document.getElementById("cloud-sync-status");
+
+  let cloudStatusTimeoutId = null;
 
 
   document.addEventListener("DOMContentLoaded", init);
@@ -50,8 +53,10 @@
     populateCategoryOptions();
     setDefaultDate();
     loadExpenses();
+    initializeCloudStatus();
     bindEvents();
     render();
+    syncExpensesToCloud(state.expenses, { silent: true });
   }
 
   // カテゴリ選択肢をフォームとフィルターに挿入
@@ -140,6 +145,7 @@
     state.expenses.sort(sortByCreatedAtDesc);
     saveExpenses();
     render();
+    syncExpensesToCloud(state.expenses);
     resetForm();
   }
 
@@ -240,6 +246,7 @@
       state.expenses = state.expenses.filter((expense) => expense.id !== id);
       saveExpenses();
       render();
+      syncExpensesToCloud(state.expenses);
     }
   }
 

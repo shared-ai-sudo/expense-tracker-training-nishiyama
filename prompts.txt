@@ -9,3 +9,6 @@ Result: Chart.js を廃止し、Canvas API によるカスタム描画を実装�
 
 Prompt: Google スプレッドシートとクラウド連携をしたい。
 Result: Google Apps Script 連携用のクラウド同期処理を main.js に追加し、README.md で設定手順をまとめました。
+
+Prompt: GASとスプレッドシートに同期されていない。修正して。
+Result: ヘッダーに同期ステータスを追加し、初期ロード・追加・削除の各タイミングで Google Apps Script にデータを送信する同期処理を main.js に復元しました。
