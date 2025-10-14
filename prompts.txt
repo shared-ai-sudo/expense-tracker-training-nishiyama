@@ -6,3 +6,6 @@ Result: タイムゾーンずれを補正し、ローカル時刻基準のバリ
 
 Prompt: 統計のセクションのグラフが両方とも表示されていない。修正して。
 Result: Chart.js を廃止し、Canvas API によるカスタム描画を実装。データ無し時の表示と軸描画を含む。
+
+Prompt: Google スプレッドシートとクラウド連携をしたい。
+Result: Google Apps Script 連携用のクラウド同期処理を main.js に追加し、README.md で設定手順をまとめました。
