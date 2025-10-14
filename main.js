@@ -6,6 +6,7 @@
 
 (function () {
   const STORAGE_KEY = "expenses";
+  const GAS_ENDPOINT = ""; // TODO: Google Apps Script のデプロイ URL を設定
   const CATEGORY_OPTIONS = [
     "食費",
     "交通費",
