@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>支出記録アプリ</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- Chart.js は統計セクションのグラフ描画に使用 -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"
+      integrity="sha384-CO1z8EuTVw0D85/yNpuPFcqjKAIDLaYswfLv7zhaQke0i5XRqZrqAcX2HHy1uCc7"
+      crossorigin="anonymous"
+    ></script>
+    <script defer src="main.js"></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>支出記録アプリ</h1>
+        <p class="app-subtitle">日々の支出を記録して傾向を見える化</p>
+      </div>
+      <div class="period-summary">
+        <span id="current-month" class="period-label"></span>
+        <span id="monthly-total" class="period-amount"></span>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="card" aria-labelledby="expense-form-title">
+        <div class="card-header">
+          <h2 id="expense-form-title">支出を追加</h2>
+          <p class="card-description">
+            日付・金額・カテゴリを入力して支出を登録してください。
+          </p>
+        </div>
+        <form id="expense-form" class="expense-form">
+          <div class="form-grid">
+            <label class="form-field">
+              <span>日付</span>
+              <input type="date" id="expense-date" required />
+            </label>
+            <label class="form-field">
+              <span>金額（円）</span>
+              <input
+                type="number"
+                id="expense-amount"
+                min="1"
+                max="9999999"
+                inputmode="numeric"
+                placeholder="例: 1200"
+                required
+              />
+            </label>
+            <label class="form-field">
+              <span>カテゴリ</span>
+              <select id="expense-category" required>
+                <option value="" disabled selected>カテゴリを選択</option>
+              </select>
+            </label>
+            <label class="form-field memo-field">
+              <span>メモ（100文字まで）</span>
+              <input
+                type="text"
+                id="expense-memo"
+                maxlength="100"
+                placeholder="任意で入力"
+              />
+            </label>
+          </div>
+          <div class="form-actions">
+            <p id="form-error" class="form-error" role="alert" aria-live="polite"></p>
+            <button type="submit" class="primary-button">支出を追加</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card" aria-labelledby="filters-title">
+        <div class="card-header">
+          <h2 id="filters-title">フィルター</h2>
+          <p class="card-description">
+            表示期間やカテゴリを切り替えて支出を確認できます。
+          </p>
+        </div>
+        <div class="filters">
+          <div class="filter-group">
+            <span class="filter-label">期間</span>
+            <div class="filter-buttons" role="group" aria-label="期間フィルター">
+              <button type="button" class="filter-button is-active" data-period="all">
+                すべて
+              </button>
+              <button type="button" class="filter-button" data-period="week">今週</button>
+              <button type="button" class="filter-button" data-period="month">今月</button>
+            </div>
+          </div>
+          <label class="filter-group">
+            <span class="filter-label">カテゴリ</span>
+            <select id="category-filter" class="filter-select">
+              <option value="all">すべて</option>
+            </select>
+          </label>
+          <div class="filter-summary">
+            <span class="filter-label">フィルター合計</span>
+            <span id="filtered-total" class="filter-total">¥0</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="expense-list-title">
+        <div class="card-header">
+          <h2 id="expense-list-title">支出一覧</h2>
+          <p class="card-description">
+            登録済みの支出は日付の新しい順に表示されます。不要な項目は削除できます。
+          </p>
+        </div>
+        <div class="table-wrapper">
+          <table class="expense-table">
+            <thead>
+              <tr>
+                <th scope="col">日付</th>
+                <th scope="col">カテゴリ</th>
+                <th scope="col">金額</th>
+                <th scope="col">メモ</th>
+                <th scope="col" class="action-column">操作</th>
+              </tr>
+            </thead>
+            <tbody id="expense-table-body">
+              <tr class="empty-row">
+                <td colspan="5">登録済みの支出はありません。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="statistics-title">
+        <div class="card-header">
+          <h2 id="statistics-title">統計</h2>
+          <p class="card-description">
+            カテゴリ別の支出割合と月別の推移グラフで傾向を把握できます。
+          </p>
+        </div>
+        <div class="statistics-grid">
+          <div class="chart-card">
+            <h3 class="chart-title">カテゴリ別支出</h3>
+            <canvas id="category-chart" width="320" height="320" aria-label="カテゴリ別支出グラフ"></canvas>
+            <ul id="category-summary" class="category-summary"></ul>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">月次推移</h3>
+            <canvas id="trend-chart" width="320" height="320" aria-label="月別支出推移グラフ"></canvas>
+            <p class="chart-note">
+              直近6か月の支出合計を表示しています。データがない月は0円です。
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <small>&copy; 2025 支出記録アプリ</small>
+    </footer>
+  </body>
+</html>
