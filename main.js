@@ -6,7 +6,7 @@
 
 (function () {
   const STORAGE_KEY = "expenses";
-  const GAS_ENDPOINT = ""https://script.google.com/a/macros/vexum-ai.com/s/AKfycbzKYx49kPbzBiEHlmcfrA-k4MuHR7Y03Ew6P7100Z7h1vOX0kmyEXnvGIZ2E0HmrvdUsQ/exec
+  const GAS_ENDPOINT = "https://script.google.com/a/macros/vexum-ai.com/s/AKfycbzKYx49kPbzBiEHlmcfrA-k4MuHR7Y03Ew6P7100Z7h1vOX0kmyEXnvGIZ2E0HmrvdUsQ/exec";
   const CATEGORY_OPTIONS = [
     "食費",
     "交通費",
