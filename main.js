@@ -809,3 +809,115 @@
       });
   }
 })();
+
+// =============================================
+// 課題完了報告機能
+// =============================================
+(function () {
+  const completionButton = document.getElementById("completion-report-button");
+  const completionModal = document.getElementById("completion-modal");
+  const completionForm = document.getElementById("completion-form");
+  const cancelButton = document.getElementById("cancel-button");
+  const modalClose = document.querySelector(".modal-close");
+  const completionError = document.getElementById("completion-error");
+  const traineeNameInput = document.getElementById("trainee-name");
+  const traineeIdInput = document.getElementById("trainee-id");
+  const appUrlInput = document.getElementById("app-url");
+  const specUrlInput = document.getElementById("spec-url");
+  const GAS_SCRIPT_ID = "1oAbPzE9Nb_nPEVhoBNkG90QohTGovhqo52IoUd7miv31RqETANsSy2J2";
+  const GAS_ENDPOINT = GAS_SCRIPT_ID ? `https://script.google.com/macros/s/${GAS_SCRIPT_ID}/exec` : "";
+
+  if (!completionButton || !completionModal) {
+    return;
+  }
+
+  // モーダルを開く
+  completionButton.addEventListener("click", () => {
+    completionModal.classList.add("is-open");
+    completionError.textContent = "";
+    traineeNameInput.focus();
+  });
+
+  // モーダルを閉じる
+  function closeModal() {
+    completionModal.classList.remove("is-open");
+    completionForm.reset();
+    completionError.textContent = "";
+  }
+
+  cancelButton.addEventListener("click", closeModal);
+  modalClose.addEventListener("click", closeModal);
+
+  // モーダル背景クリックで閉じる
+  completionModal.addEventListener("click", (e) => {
+    if (e.target === completionModal) {
+      closeModal();
+    }
+  });
+
+  // Escキーでモーダルを閉じる
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && completionModal.classList.contains("is-open")) {
+      closeModal();
+    }
+  });
+
+  // フォーム送信
+  completionForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    completionError.textContent = "";
+
+    const traineeName = traineeNameInput.value.trim();
+    const traineeId = traineeIdInput.value.trim();
+    const appUrl = appUrlInput.value.trim();
+    const specUrl = specUrlInput.value.trim();
+
+    if (!traineeName || !traineeId || !appUrl || !specUrl) {
+      completionError.textContent = "全ての項目を入力してください。";
+      return;
+    }
+
+    if (!GAS_ENDPOINT) {
+      completionError.textContent = "GASエンドポイントが設定されていません。";
+      return;
+    }
+
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+    const reportData = {
+      action: "submitCompletionReport",
+      traineeName,
+      traineeId,
+      appUrl,
+      specUrl,
+      completedAt: formattedDate,
+    };
+
+    try {
+      // ボタンを無効化
+      const submitButton = completionForm.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+      submitButton.textContent = "送信中...";
+
+      const response = await fetch(GAS_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reportData),
+      });
+
+      // no-corsモードではレスポンスを読めないため、送信が成功したと仮定
+      alert("✅ 課題完了報告を送信しました！\n管理者のLINEに通知されます。");
+      closeModal();
+    } catch (error) {
+      console.error("Failed to submit completion report:", error);
+      completionError.textContent = "送信に失敗しました。もう一度お試しください。";
+      const submitButton = completionForm.querySelector('button[type="submit"]');
+      submitButton.disabled = false;
+      submitButton.textContent = "送信";
+    }
+  });
+})();

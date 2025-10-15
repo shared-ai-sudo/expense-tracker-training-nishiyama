@@ -24,6 +24,9 @@
         <span id="current-month" class="period-label"></span>
         <span id="monthly-total" class="period-amount"></span>
         <span id="cloud-sync-status" class="cloud-status" aria-live="polite"></span>
+        <button type="button" id="completion-report-button" class="completion-report-button" title="課題完了を報告">
+          🎉 課題完了報告
+        </button>
       </div>
     </header>
 
@@ -161,5 +164,38 @@
     <footer class="app-footer">
       <small>&copy; 2025 支出記録アプリ</small>
     </footer>
+
+    <!-- 課題完了報告モーダル -->
+    <div id="completion-modal" class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modal-title">🎉 課題4完了報告</h2>
+          <button type="button" class="modal-close" aria-label="閉じる">&times;</button>
+        </div>
+        <form id="completion-form" class="completion-form">
+          <div class="form-field">
+            <label for="trainee-name">研修生名</label>
+            <input type="text" id="trainee-name" placeholder="例: 田中太郎" required />
+          </div>
+          <div class="form-field">
+            <label for="trainee-id">研修生ID</label>
+            <input type="text" id="trainee-id" placeholder="例: user01" required />
+          </div>
+          <div class="form-field">
+            <label for="app-url">アプリURL</label>
+            <input type="url" id="app-url" placeholder="https://your-github-username.github.io/expense-app" required />
+          </div>
+          <div class="form-field">
+            <label for="spec-url">仕様書URL</label>
+            <input type="url" id="spec-url" placeholder="https://github.com/your-github-username/expense-app/blob/main/spec.md" required />
+          </div>
+          <p id="completion-error" class="form-error" role="alert" aria-live="polite"></p>
+          <div class="modal-actions">
+            <button type="button" class="secondary-button" id="cancel-button">キャンセル</button>
+            <button type="submit" class="primary-button">送信</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </body>
 </html>

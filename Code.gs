@@ -6,6 +6,9 @@
 // スプレッドシートの設定
 const SHEET_NAME = "支出データ";
 
+// LINE Notify設定
+const LINE_NOTIFY_TOKEN = "YOUR_LINE_NOTIFY_TOKEN_HERE"; // LINE Notifyのトークンを設定してください
+
 /**
  * Webアプリケーションへの POST リクエストを処理
  */
@@ -28,6 +31,13 @@ function doPost(e) {
       syncExpensesToSheet(data.expenses);
       return ContentService.createTextOutput(
         JSON.stringify({ status: "success", count: data.expenses.length })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (data.action === "submitCompletionReport") {
+      sendCompletionReportToLine(data);
+      return ContentService.createTextOutput(
+        JSON.stringify({ status: "success", message: "Report sent to LINE" })
       ).setMimeType(ContentService.MimeType.JSON);
     }
 
@@ -135,6 +145,54 @@ function initializeSheet(sheet) {
 }
 
 /**
+ * 課題完了報告をLINEに送信
+ */
+function sendCompletionReportToLine(data) {
+  if (!LINE_NOTIFY_TOKEN || LINE_NOTIFY_TOKEN === "YOUR_LINE_NOTIFY_TOKEN_HERE") {
+    Logger.log("LINE Notify token is not configured");
+    return;
+  }
+
+  const message = `
+【🎉課題4完了報告🎉】
+研修生：${data.traineeName}（${data.traineeId}）
+完了：${data.completedAt}
+
+アプリURL:
+${data.appUrl}
+
+仕様書URL:
+${data.specUrl}
+
+確認をお願いします！
+  `.trim();
+
+  const options = {
+    method: "post",
+    headers: {
+      "Authorization": "Bearer " + LINE_NOTIFY_TOKEN,
+    },
+    payload: {
+      message: message
+    },
+    muteHttpExceptions: true
+  };
+
+  try {
+    const response = UrlFetchApp.fetch("https://notify-api.line.me/api/notify", options);
+    const responseCode = response.getResponseCode();
+
+    if (responseCode === 200) {
+      Logger.log("LINE notification sent successfully");
+    } else {
+      Logger.log("Failed to send LINE notification: " + responseCode + " - " + response.getContentText());
+    }
+  } catch (error) {
+    Logger.log("Error sending LINE notification: " + error.toString());
+  }
+}
+
+/**
  * テスト用：サンプルデータで同期をテスト
  */
 function testSync() {
@@ -159,4 +217,20 @@ function testSync() {
 
   syncExpensesToSheet(sampleExpenses);
   Logger.log("Test sync completed");
+}
+
+/**
+ * テスト用：LINE通知をテスト
+ */
+function testLineNotification() {
+  const testData = {
+    traineeName: "田中太郎",
+    traineeId: "user01",
+    completedAt: "2025/10/20 15:30",
+    appUrl: "https://your-github-username.github.io/expense-app",
+    specUrl: "https://github.com/your-github-username/expense-app/blob/main/spec.md"
+  };
+
+  sendCompletionReportToLine(testData);
+  Logger.log("Test LINE notification sent");
 }
