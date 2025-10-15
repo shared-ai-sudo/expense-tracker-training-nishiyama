@@ -5,7 +5,7 @@
 // =============================================
 
 (function () {
-  const STORAGE_KEY = "expenses";
+  const GAS_SCRIPT_ID = "1oAbPzE9Nb_nPEVhoBNkG90QohTGovhqo52IoUd7miv31RqETANsSy2J2";
   const GAS_SCRIPT_ID = ""; // 必要に応じて GAS のスクリプト ID を設定
   const GAS_ENDPOINT = GAS_SCRIPT_ID ? `https://script.google.com/macros/s/${GAS_SCRIPT_ID}/exec` : "";
   const CATEGORY_OPTIONS = [
