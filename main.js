@@ -5,8 +5,8 @@
 // =============================================
 
 (function () {
+  const STORAGE_KEY = "expense-tracker-data";
   const GAS_SCRIPT_ID = "1oAbPzE9Nb_nPEVhoBNkG90QohTGovhqo52IoUd7miv31RqETANsSy2J2";
-  const GAS_SCRIPT_ID = ""; // 必要に応じて GAS のスクリプト ID を設定
   const GAS_ENDPOINT = GAS_SCRIPT_ID ? `https://script.google.com/macros/s/${GAS_SCRIPT_ID}/exec` : "";
   const CATEGORY_OPTIONS = [
     "食費",
@@ -750,5 +750,62 @@
     if (categoryInput.options.length > 0) {
       categoryInput.selectedIndex = 0;
     }
+  }
+
+  // クラウド同期の状態表示を初期化
+  function initializeCloudStatus() {
+    if (cloudStatusLabel) {
+      cloudStatusLabel.textContent = "";
+    }
+  }
+
+  // クラウドへの支出データ同期
+  function syncExpensesToCloud(expenses, options = {}) {
+    if (!GAS_ENDPOINT) {
+      return;
+    }
+
+    if (!options.silent && cloudStatusLabel) {
+      cloudStatusLabel.textContent = "同期中...";
+      cloudStatusLabel.className = "syncing";
+    }
+
+    if (cloudStatusTimeoutId) {
+      clearTimeout(cloudStatusTimeoutId);
+    }
+
+    // Google Apps Script へデータを送信
+    fetch(GAS_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "syncExpenses",
+        expenses: expenses,
+      }),
+    })
+      .then(() => {
+        if (!options.silent && cloudStatusLabel) {
+          cloudStatusLabel.textContent = "同期完了";
+          cloudStatusLabel.className = "synced";
+          cloudStatusTimeoutId = setTimeout(() => {
+            cloudStatusLabel.textContent = "";
+            cloudStatusLabel.className = "";
+          }, 3000);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to sync to cloud:", error);
+        if (!options.silent && cloudStatusLabel) {
+          cloudStatusLabel.textContent = "同期失敗";
+          cloudStatusLabel.className = "error";
+          cloudStatusTimeoutId = setTimeout(() => {
+            cloudStatusLabel.textContent = "";
+            cloudStatusLabel.className = "";
+          }, 5000);
+        }
+      });
   }
 })();
