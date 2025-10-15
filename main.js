@@ -6,8 +6,8 @@
 
 (function () {
   const STORAGE_KEY = "expenses";
-  const GAS_SCRIPT_ID = "AKfycbzKYx49kPbzBiEHlmcfrA-k4MuHR7Y03Ew6P7100Z7h1vOX0kmyEXnvGIZ2E0HmrvdUsQ"; // TODO: 自分のスクリプト ID に置き換え
-  const GAS_ENDPOINT = `https://script.google.com/macros/s/${GAS_SCRIPT_ID}/exec`;
+  const GAS_SCRIPT_ID = ""; // 必要に応じて GAS のスクリプト ID を設定
+  const GAS_ENDPOINT = GAS_SCRIPT_ID ? `https://script.google.com/macros/s/${GAS_SCRIPT_ID}/exec` : "";
   const CATEGORY_OPTIONS = [
     "食費",
     "交通費",
