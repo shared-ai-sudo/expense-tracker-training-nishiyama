@@ -6,7 +6,7 @@
 
 (function () {
   const STORAGE_KEY = "expense-tracker-data";
-  const GAS_SCRIPT_ID = "1oAbPzE9Nb_nPEVhoBNkG90QohTGovhqo52IoUd7miv31RqETANsSy2J2";
+  const GAS_SCRIPT_ID = "AKfycbwYfbLQnKls-oxso5DdWdmTRA3fVN7TGcQvWQ7TRNP9Hg6avIV-GgCtB4ZW7lmHpXH7mg";
   const GAS_ENDPOINT = GAS_SCRIPT_ID ? `https://script.google.com/macros/s/${GAS_SCRIPT_ID}/exec` : "";
   const CATEGORY_OPTIONS = [
     "食費",
@@ -824,7 +824,7 @@
   const traineeIdInput = document.getElementById("trainee-id");
   const appUrlInput = document.getElementById("app-url");
   const specUrlInput = document.getElementById("spec-url");
-  const GAS_SCRIPT_ID = "1oAbPzE9Nb_nPEVhoBNkG90QohTGovhqo52IoUd7miv31RqETANsSy2J2";
+  const GAS_SCRIPT_ID = "AKfycbwYfbLQnKls-oxso5DdWdmTRA3fVN7TGcQvWQ7TRNP9Hg6avIV-GgCtB4ZW7lmHpXH7mg";
   const GAS_ENDPOINT = GAS_SCRIPT_ID ? `https://script.google.com/macros/s/${GAS_SCRIPT_ID}/exec` : "";
 
   if (!completionButton || !completionModal) {
