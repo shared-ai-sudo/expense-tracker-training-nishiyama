@@ -66,19 +66,24 @@ function doGet(e) {
  * 支出データをスプレッドシートに同期
  */
 function syncExpensesToSheet(expenses) {
+  // ユーザーのメールアドレスを取得してシート名を決定
+  const userEmail = Session.getActiveUser().getEmail();
+  const userName = userEmail.split('@')[0]; // @の前の部分を使用
+  const sheetName = `支出データ_${userName}`;
+
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(SHEET_NAME);
+  let sheet = ss.getSheetByName(sheetName);
 
   // シートが存在しない場合は作成
   if (!sheet) {
-    sheet = ss.insertSheet(SHEET_NAME);
-    initializeSheet(sheet);
+    sheet = ss.insertSheet(sheetName);
+    initializeSheet(sheet, userEmail);
   }
 
   // 既存データをクリア（ヘッダー行は残す）
   const lastRow = sheet.getLastRow();
-  if (lastRow > 1) {
-    sheet.getRange(2, 1, lastRow - 1, 6).clearContent();
+  if (lastRow > 2) {
+    sheet.getRange(3, 1, lastRow - 2, 6).clearContent();
   }
 
   // データが空の場合は終了
@@ -96,24 +101,25 @@ function syncExpensesToSheet(expenses) {
     new Date(expense.createdAt || Date.now())
   ]);
 
-  // データを一括で書き込み
-  sheet.getRange(2, 1, rows.length, 6).setValues(rows);
+  // データを一括で書き込み（3行目から開始、2行目はユーザー情報）
+  sheet.getRange(3, 1, rows.length, 6).setValues(rows);
 
   // 日付でソート（降順）
   if (rows.length > 0) {
-    sheet.getRange(2, 1, rows.length, 6).sort([
+    sheet.getRange(3, 1, rows.length, 6).sort([
       { column: 2, ascending: false }, // 日付で降順
       { column: 6, ascending: false }  // 作成日時で降順
     ]);
   }
 
-  Logger.log(`Synced ${expenses.length} expenses to sheet`);
+  Logger.log(`Synced ${expenses.length} expenses to sheet: ${sheetName}`);
 }
 
 /**
  * シートを初期化（ヘッダー行を設定）
  */
-function initializeSheet(sheet) {
+function initializeSheet(sheet, userEmail) {
+  // 1行目: ヘッダー
   const headers = ["ID", "日付", "カテゴリ", "金額", "メモ", "作成日時"];
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
 
@@ -123,6 +129,12 @@ function initializeSheet(sheet) {
   headerRange.setBackground("#4285f4");
   headerRange.setFontColor("#ffffff");
 
+  // 2行目: ユーザー情報
+  const userInfo = [`ユーザー: ${userEmail}`, `最終更新: ${new Date().toLocaleString('ja-JP')}`, "", "", "", ""];
+  sheet.getRange(2, 1, 1, 6).setValues([userInfo]);
+  sheet.getRange(2, 1, 1, 6).setBackground("#e3f2fd");
+  sheet.getRange(2, 1, 1, 6).setFontColor("#1565c0");
+
   // 列幅の調整
   sheet.setColumnWidth(1, 280); // ID
   sheet.setColumnWidth(2, 100); // 日付
@@ -131,17 +143,17 @@ function initializeSheet(sheet) {
   sheet.setColumnWidth(5, 200); // メモ
   sheet.setColumnWidth(6, 150); // 作成日時
 
-  // 金額列に通貨フォーマットを適用
-  sheet.getRange(2, 4, 1000, 1).setNumberFormat("¥#,##0");
+  // 金額列に通貨フォーマットを適用（3行目から）
+  sheet.getRange(3, 4, 1000, 1).setNumberFormat("¥#,##0");
 
-  // 日付列にフォーマットを適用
-  sheet.getRange(2, 2, 1000, 1).setNumberFormat("yyyy-mm-dd");
+  // 日付列にフォーマットを適用（3行目から）
+  sheet.getRange(3, 2, 1000, 1).setNumberFormat("yyyy-mm-dd");
 
-  // 作成日時列にフォーマットを適用
-  sheet.getRange(2, 6, 1000, 1).setNumberFormat("yyyy-mm-dd hh:mm:ss");
+  // 作成日時列にフォーマットを適用（3行目から）
+  sheet.getRange(3, 6, 1000, 1).setNumberFormat("yyyy-mm-dd hh:mm:ss");
 
-  // シートを固定
-  sheet.setFrozenRows(1);
+  // シートを固定（2行分）
+  sheet.setFrozenRows(2);
 }
 
 /**
@@ -216,7 +228,26 @@ function testSync() {
   ];
 
   syncExpensesToSheet(sampleExpenses);
-  Logger.log("Test sync completed");
+  const userEmail = Session.getActiveUser().getEmail();
+  Logger.log(`Test sync completed for user: ${userEmail}`);
+}
+
+/**
+ * すべてのユーザーシートを一覧表示
+ */
+function listAllUserSheets() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheets = ss.getSheets();
+
+  Logger.log("=== ユーザーシート一覧 ===");
+  sheets.forEach(sheet => {
+    const name = sheet.getName();
+    if (name.startsWith("支出データ_")) {
+      const lastRow = sheet.getLastRow();
+      const dataCount = lastRow > 2 ? lastRow - 2 : 0;
+      Logger.log(`${name}: ${dataCount}件のデータ`);
+    }
+  });
 }
 
 /**
