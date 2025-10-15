@@ -12,3 +12,6 @@ Result: Google Apps Script 連携用のクラウド同期処理を main.js に�
 
 Prompt: GASとスプレッドシートに同期されていない。修正して。
 Result: ヘッダーに同期ステータスを追加し、初期ロード・追加・削除の各タイミングで Google Apps Script にデータを送信する同期処理を main.js に復元しました。
+
+Prompt: 支出を追加してもテーブルに表示されない。修正して。
+Result: GAS エンドポイントを正規化し、クロスオリジンでも到達できる URL へ変換。fetch のリクエストヘッダーと Beacon 送信を JSON に統一し、ヘッダーの同期インジケーターが常時利用できるよう復帰しました。
