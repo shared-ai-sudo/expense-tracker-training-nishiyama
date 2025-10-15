@@ -47,7 +47,11 @@
   let cloudStatusTimeoutId = null;
 
 
-  document.addEventListener("DOMContentLoaded", init);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 
   // 初期化処理: カテゴリ選択肢を生成し、既存データを表示
   function init() {
